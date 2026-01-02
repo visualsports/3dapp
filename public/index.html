@@ -4,51 +4,59 @@
     <meta charset="UTF-8">
     <title>Visualynx — AI Kit Builder by Visual Sports</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #FFE135; --dark-bg: #0a0a0a; }
+        :root { --accent: #FFE135; --dark-bg: #0a0a0a; --panel: rgba(20, 20, 20, 0.95); }
         body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
         /* Panel Lateral */
         .sidebar { 
-            width: 320px; background: rgba(20, 20, 20, 0.95); padding: 30px; 
-            border-right: 1px solid #333; display: flex; flex-direction: column; gap: 25px; 
-            z-index: 100; backdrop-filter: blur(10px);
+            width: 340px; background: var(--panel); padding: 25px; 
+            border-right: 1px solid #333; display: flex; flex-direction: column; gap: 20px; 
+            z-index: 100; backdrop-filter: blur(15px); box-sizing: border-box;
         }
         
         /* Área de Visualización con el GIF de fondo */
         .preview-area { 
             flex-grow: 1; display: flex; justify-content: center; align-items: center; 
-            background: url('assets/FONDO.gif') no-repeat center center;
+            background: #000 url('assets/fondo.gif') no-repeat center center;
             background-size: cover; position: relative;
         }
 
-        /* Mockup Dinámico (El sándwich de tus capas de Photoshop) */
-        .mockup-container {
-            position: relative; width: 600px; height: 750px; margin: auto;
-        }
-        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
+        /* Mockup Dinámico (Ajustado a tus PNGs) */
+        .mockup-container { position: relative; width: 80%; height: 80%; max-width: 600px; display: flex; align-items: center; justify-content: center; }
+        .layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
 
-        /* Capa de diseño recortada por la silueta */
-        #dynamic-color {
-            mask-image: url('assets/frente.png'); -webkit-mask-image: url('assets/frente.png');
+        /* Capa de diseño (la silueta que corta el color) */
+        #dynamic-mask {
+            mask-image: url('assets/frente_base.png'); -webkit-mask-image: url('assets/frente_base.png');
             mask-size: contain; -webkit-mask-size: contain;
             mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
-            background: #00ccff; z-index: 1;
+            mask-position: center; -webkit-mask-position: center;
+            background: #00ccff; z-index: 1; width: 100%; height: 100%;
         }
 
-        .control-box { background: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #333; }
-        h1 { font-size: 1.4rem; color: var(--accent); margin: 0; letter-spacing: -1px; }
-        h2 { font-size: 0.8rem; color: #888; text-transform: uppercase; margin-bottom: 10px; }
+        .control-box { background: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #333; }
+        h1 { font-size: 1.6rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -1px; }
+        h2 { font-size: 0.75rem; color: #aaa; text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 1px; }
         
-        input[type="color"] { width: 100%; height: 45px; border: none; cursor: pointer; background: none; }
-        button { 
-            background: var(--accent); color: black; border: none; padding: 15px; 
-            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;
-            text-transform: uppercase; transition: 0.2s;
+        input[type="color"] { width: 100%; height: 40px; border: none; cursor: pointer; background: none; margin-bottom: 5px; }
+        
+        /* CUADRO DE IA PROMPT */
+        textarea#aiPrompt {
+            width: 100%; background: #000; color: #fff; border: 1px solid #444; 
+            border-radius: 8px; padding: 12px; box-sizing: border-box; resize: none;
+            font-family: inherit; font-size: 0.9rem; margin-bottom: 10px;
         }
-        button:hover { transform: scale(1.02); background: #fff; }
+        
+        button { 
+            background: var(--accent); color: black; border: none; padding: 14px; 
+            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;
+            text-transform: uppercase; transition: 0.2s; font-size: 0.85rem;
+        }
+        button:hover { background: #fff; transform: translateY(-2px); }
+        button.secondary { background: #333; color: white; font-size: 0.7rem; }
 
-        /* Ocultamos el canvas técnico de 65x80cm de la vista del cliente */
         #canvas-hidden { position: absolute; left: -9999px; }
     </style>
 </head>
@@ -60,50 +68,56 @@
             <p style="font-size: 0.7rem; color: #666; margin-top: 5px;">AI Kit Builder by Visual Sports</p>
         </div>
 
+        <!-- 1. IA PROMPT BOX -->
         <div class="control-box">
-            <h2>Color Principal</h2>
-            <input type="color" id="kitColor" value="#00ccff" onchange="updateSystem(this.value)">
+            <h2>3. AI Designer (Prompt)</h2>
+            <textarea id="aiPrompt" rows="3" placeholder="Ej: Camuflaje moderno en tonos cian y gris oscuro con detalles en blanco..."></textarea>
+            <button class="secondary" onclick="alert('IA Generando... (Conectando API)')">Generar Diseño con IA</button>
         </div>
 
+        <!-- 2. COLOR PICKER -->
         <div class="control-box">
-            <h2>Añadir Logos</h2>
-            <input type="file" id="logoUpload" accept="image/*" style="font-size: 0.8rem;">
+            <h2>2. Color de Base</h2>
+            <input type="color" id="kitColor" value="#00ccff" onchange="updateColor(this.value)">
         </div>
 
-        <button onclick="generateProductionFile()" style="margin-top: auto; background: #28a745; color: white;">Finalizar Diseño</button>
+        <!-- 3. LOGO UPLOAD -->
+        <div class="control-box">
+            <h2>3. Tus Logos</h2>
+            <input type="file" id="logoUpload" accept="image/*" style="font-size: 0.7rem; color: #888;">
+        </div>
+
+        <button onclick="generateProductionFile()" style="margin-top: auto; background: #28a745; color: white;">Finalizar y Descargar Plano</button>
     </div>
 
     <div class="preview-area">
         <div class="mockup-container">
-            <!-- 1. Color dinámico -->
-            <div id="dynamic-color" class="layer"></div>
-            <!-- 2. Capa de Sombras (Multiplicar) -->
-            <img src="assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; opacity: 0.9; z-index: 2;">
-            <!-- 3. Capa de Brillos (Trama) -->
-            <img src="assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.6; z-index: 3;">
+            <!-- 1. Color dinámico recortado por la base -->
+            <div id="dynamic-mask" class="layer"></div>
+            
+            <!-- 2. Capa de Sombras (Modo Multiplicar) -->
+            <img src="assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; opacity: 1; z-index: 2;">
+            
+            <!-- 3. Capa de Brillos (Modo Trama/Screen) -->
+            <img src="assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.7; z-index: 3;">
         </div>
     </div>
 
+    <!-- El lienzo técnico de 65x80cm que tú recibes -->
     <div id="canvas-hidden">
         <canvas id="flatCanvas"></canvas>
     </div>
 
     <script>
-        // Canvas técnico de 65x80cm (escala 10px = 1cm)
         const canvas = new fabric.Canvas('flatCanvas', {
-            width: 650,
-            height: 800,
-            backgroundColor: '#00ccff'
+            width: 650, height: 800, backgroundColor: '#00ccff'
         });
 
-        function updateSystem(color) {
-            // Actualiza el 3D visual que ve el cliente
-            document.getElementById('dynamic-color').style.backgroundColor = color;
-            // Actualiza el plano técnico de 65x80cm para ti
+        function updateColor(color) {
+            document.getElementById('dynamic-mask').style.backgroundColor = color;
             canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
         }
 
-        // Lógica para logos...
         document.getElementById('logoUpload').onchange = function(e) {
             const reader = new FileReader();
             reader.onload = function(f) {
@@ -119,10 +133,9 @@
         function generateProductionFile() {
             const dataURL = canvas.toDataURL({ format: 'png', multiplier: 4 });
             const link = document.createElement('a');
-            link.download = 'Visualynx_Frente_65x80.png';
+            link.download = 'Visualynx_Frente_65x80_VisualSport.png';
             link.href = dataURL;
             link.click();
-            alert("Arte plano generado a 300dpi. ¡Listo para tu montaje!");
         }
     </script>
 </body>
