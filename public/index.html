@@ -2,66 +2,109 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Nano Banana - Visual Sport Designer</title>
+    <title>Visualynx — AI Kit Builder by Visual Sports</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <style>
-        :root { --banana: #FFE135; --dark: #121212; }
-        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: 320px; background: #1a1a1a; padding: 25px; border-right: 2px solid var(--banana); display: flex; flex-direction: column; gap: 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.5); z-index: 10; }
-        .canvas-area { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #080808; position: relative; overflow: auto; }
-        .control-box { background: #252525; padding: 15px; border-radius: 8px; border: 1px solid #333; }
-        h2 { color: var(--banana); font-size: 1rem; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; }
-        input[type="color"] { width: 100%; height: 40px; border: none; cursor: pointer; background: none; }
-        button { background: var(--banana); color: black; border: none; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
-        button:hover { background: #ffd700; transform: translateY(-2px); }
-        .canvas-container { box-shadow: 0 0 50px rgba(0,0,0,0.8); border: 1px solid #333; }
+        :root { --accent: #FFE135; --dark-bg: #0a0a0a; }
+        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Panel Lateral */
+        .sidebar { 
+            width: 320px; background: rgba(20, 20, 20, 0.95); padding: 30px; 
+            border-right: 1px solid #333; display: flex; flex-direction: column; gap: 25px; 
+            z-index: 100; backdrop-filter: blur(10px);
+        }
+        
+        /* Área de Visualización con el GIF de fondo */
+        .preview-area { 
+            flex-grow: 1; display: flex; justify-content: center; align-items: center; 
+            background: url('assets/FONDO.gif') no-repeat center center;
+            background-size: cover; position: relative;
+        }
+
+        /* Mockup Dinámico (El sándwich de tus capas de Photoshop) */
+        .mockup-container {
+            position: relative; width: 600px; height: 750px; margin: auto;
+        }
+        .layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
+
+        /* Capa de diseño recortada por la silueta */
+        #dynamic-color {
+            mask-image: url('assets/Frente.png'); -webkit-mask-image: url('assets/Frente.png');
+            mask-size: contain; -webkit-mask-size: contain;
+            mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+            background: #00ccff; z-index: 1;
+        }
+
+        .control-box { background: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        h1 { font-size: 1.4rem; color: var(--accent); margin: 0; letter-spacing: -1px; }
+        h2 { font-size: 0.8rem; color: #888; text-transform: uppercase; margin-bottom: 10px; }
+        
+        input[type="color"] { width: 100%; height: 45px; border: none; cursor: pointer; background: none; }
+        button { 
+            background: var(--accent); color: black; border: none; padding: 15px; 
+            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;
+            text-transform: uppercase; transition: 0.2s;
+        }
+        button:hover { transform: scale(1.02); background: #fff; }
+
+        /* Ocultamos el canvas técnico de 65x80cm de la vista del cliente */
+        #canvas-hidden { position: absolute; left: -9999px; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h1 style="color: var(--banana); margin: 0; font-size: 1.5rem;">NANO BANANA</h1>
-        <p style="font-size: 0.8rem; color: #888;">Visual Sport - Área Técnica 35x80cm</p>
-
-        <div class="control-box">
-            <h2>1. Color de Base</h2>
-            <input type="color" id="colorPicker" value="#0044cc" onchange="changeColor(this.value)">
+        <div>
+            <h1>Visualynx</h1>
+            <p style="font-size: 0.7rem; color: #666; margin-top: 5px;">AI Kit Builder by Visual Sports</p>
         </div>
 
         <div class="control-box">
-            <h2>2. Tus Logos</h2>
-            <input type="file" id="fileInput" accept="image/*" style="font-size: 0.8rem; color: #ccc;">
+            <h2>Color Principal</h2>
+            <input type="color" id="kitColor" value="#00ccff" onchange="updateSystem(this.value)">
         </div>
 
         <div class="control-box">
-            <h2>3. IA Designer</h2>
-            <textarea id="aiPrompt" placeholder="Instrucciones para la IA..." style="width: 100%; background: #000; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 8px; box-sizing: border-box;"></textarea>
-            <button style="margin-top: 10px; background: #444; color: white; font-size: 0.7rem;">GENERAR PATRÓN (Próximamente)</button>
+            <h2>Añadir Logos</h2>
+            <input type="file" id="logoUpload" accept="image/*" style="font-size: 0.8rem;">
         </div>
 
-        <button onclick="downloadDesign()" style="margin-top: auto; background: #28a745; color: white;">FINALIZAR Y ENVIAR ARTE</button>
+        <button onclick="generateProductionFile()" style="margin-top: auto; background: #28a745; color: white;">Finalizar Diseño</button>
     </div>
 
-    <div class="canvas-area">
-        <canvas id="mainCanvas"></canvas>
+    <div class="preview-area">
+        <div class="mockup-container">
+            <!-- 1. Color dinámico -->
+            <div id="dynamic-color" class="layer"></div>
+            <!-- 2. Capa de Sombras (Multiplicar) -->
+            <img src="assets/Frente_Sombras.png" class="layer" style="mix-blend-mode: multiply; opacity: 0.9; z-index: 2;">
+            <!-- 3. Capa de Brillos (Trama) -->
+            <img src="assets/Frente_Highlights_2.png" class="layer" style="mix-blend-mode: screen; opacity: 0.6; z-index: 3;">
+        </div>
+    </div>
+
+    <div id="canvas-hidden">
+        <canvas id="flatCanvas"></canvas>
     </div>
 
     <script>
-        // Configuración del lienzo: Proporción 35x80cm (Escalado 1:10 para pantalla)
-        const canvas = new fabric.Canvas('mainCanvas', {
-            width: 350,
+        // Canvas técnico de 65x80cm (escala 10px = 1cm)
+        const canvas = new fabric.Canvas('flatCanvas', {
+            width: 650,
             height: 800,
-            backgroundColor: '#0044cc'
+            backgroundColor: '#00ccff'
         });
 
-        // Cambiar color de fondo
-        function changeColor(color) {
+        function updateSystem(color) {
+            // Actualiza el 3D visual que ve el cliente
+            document.getElementById('dynamic-color').style.backgroundColor = color;
+            // Actualiza el plano técnico de 65x80cm para ti
             canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
         }
 
-        // Subir Logos
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
+        // Lógica para logos...
+        document.getElementById('logoUpload').onchange = function(e) {
             const reader = new FileReader();
             reader.onload = function(f) {
                 fabric.Image.fromURL(f.target.result, function(img) {
@@ -70,20 +113,16 @@
                     canvas.centerObject(img);
                 });
             };
-            reader.readAsDataURL(file);
-        });
+            reader.readAsDataURL(e.target.files[0]);
+        };
 
-        // Descargar plano para Visual Sport
-        function downloadDesign() {
-            // Genera la imagen a alta resolución (multiplier 4 para impresión)
-            const dataURL = canvas.toDataURL({
-                format: 'png',
-                multiplier: 4
-            });
+        function generateProductionFile() {
+            const dataURL = canvas.toDataURL({ format: 'png', multiplier: 4 });
             const link = document.createElement('a');
-            link.download = 'arte-plano-35x80-visualsport.png';
+            link.download = 'Visualynx_Frente_65x80.png';
             link.href = dataURL;
             link.click();
+            alert("Arte plano generado a 300dpi. ¡Listo para tu montaje!");
         }
     </script>
 </body>
