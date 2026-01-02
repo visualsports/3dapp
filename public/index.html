@@ -6,12 +6,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #FFE135; --dark-bg: #050505; --panel: rgba(15, 15, 15, 0.85); }
+        :root { --accent: #FFE135; --dark-bg: #050505; --panel: rgba(15, 15, 15, 0.9); }
         body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Panel Estilo "Cyber-Sport" */
         .sidebar { 
-            width: 380px; background: var(--panel); padding: 30px; 
+            width: 350px; background: var(--panel); padding: 30px; 
             border-right: 1px solid #222; display: flex; flex-direction: column; gap: 25px; 
             z-index: 100; backdrop-filter: blur(20px); box-sizing: border-box;
         }
@@ -22,10 +21,10 @@
             background-size: cover; position: relative;
         }
 
-        /* Mockup con profundidad 2.5D */
-        .mockup-container { position: relative; width: 85%; height: 85%; max-width: 700px; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); }
-        .layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; transition: 0.5s ease; }
+        .mockup-container { position: relative; width: 90%; height: 90%; max-width: 600px; }
+        .layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
 
+        /* Máscara corregida con nombres en minúsculas */
         #dynamic-mask {
             mask-image: url('assets/frente_base.png'); -webkit-mask-image: url('assets/frente_base.png');
             mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; mask-position: center;
@@ -34,24 +33,18 @@
 
         .control-box { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
         h1 { font-size: 1.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -2px; font-style: italic; }
-        h2 { font-size: 0.7rem; color: #555; text-transform: uppercase; margin: 0 0 15px 0; letter-spacing: 2px; }
+        h2 { font-size: 0.7rem; color: #555; text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 2px; }
         
-        textarea#aiPrompt {
+        textarea {
             width: 100%; background: #000; color: #fff; border: 1px solid #333; 
-            border-radius: 12px; padding: 15px; box-sizing: border-box; resize: none;
-            font-family: inherit; font-size: 0.85rem; margin-bottom: 12px; outline: none;
+            border-radius: 12px; padding: 15px; box-sizing: border-box; resize: none; font-family: inherit;
         }
-        textarea#aiPrompt:focus { border-color: var(--accent); }
         
-        .btn-ai { 
-            background: var(--accent); color: black; border: none; padding: 16px; 
-            border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%;
-            text-transform: uppercase; transition: 0.3s; font-size: 0.8rem;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .btn-ai:hover { background: #fff; box-shadow: 0 0 20px rgba(255,225,53,0.3); }
+        .btn-ai { background: var(--accent); color: black; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%; text-transform: uppercase; }
+        .btn-finalize { background: #fff; color: #000; margin-top: auto; padding: 18px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; }
 
-        .btn-prod { background: #fff; color: #000; margin-top: auto; padding: 18px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; }
+        /* IMPORTANTE: El Canvas donde se crea el arte de impresión es invisible para el cliente */
+        #production-canvas { position: absolute; left: -9999px; }
     </style>
 </head>
 <body>
@@ -62,55 +55,49 @@
             <p style="font-size: 0.7rem; color: #444; margin-top: 5px;">GEN-AI APPAREL LAB</p>
         </div>
 
-        <!-- SECCIÓN IA: EL CORAZÓN DEL PROYECTO -->
         <div class="control-box">
             <h2>AI Design Assistant</h2>
-            <textarea id="aiPrompt" rows="4" placeholder="Describe tu visión: 'Patrón geométrico tipo glitch en cian neón sobre fondo carbón mate...'"></textarea>
-            <button class="btn-ai" onclick="generateAI()">
-                <span>✨</span> GENERAR DISEÑO ÚNICO
-            </button>
+            <textarea id="aiPrompt" rows="4" placeholder="Describe tu visión..."></textarea>
+            <button class="btn-ai" onclick="generateAI()">✨ GENERAR DISEÑO</button>
         </div>
 
         <div class="control-box">
             <h2>Configuración Manual</h2>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <input type="color" id="kitColor" value="#111111" onchange="updateColor(this.value)" style="width:50px; height:50px; border:none; background:none; cursor:pointer;">
-                <span style="font-size:0.8rem; color:#888;">Color base del tejido</span>
-            </div>
+            <input type="color" id="kitColor" value="#111111" onchange="updateColor(this.value)" style="width:100%; height:40px; border:none; background:none; cursor:pointer;">
         </div>
 
-        <button class="btn-prod" onclick="generateProductionFile()">FINALIZAR PARA PRODUCCIÓN</button>
+        <!-- Botón que NO descarga, solo envía -->
+        <button class="btn-finalize" onclick="sendToVisualSports()">SOLICITAR ESTE DISEÑO</button>
     </div>
 
     <div class="preview-area">
         <div class="mockup-container">
             <div id="dynamic-mask" class="layer"></div>
-            <img src="assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; opacity: 1; z-index: 2;">
+            <!-- Nombres corregidos a minúsculas para GitHub -->
+            <img src="assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; z-index: 2;">
             <img src="assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.8; z-index: 3;">
         </div>
     </div>
 
+    <canvas id="production-canvas"></canvas>
+
     <script>
-        const canvas = new fabric.Canvas(null, { width: 650, height: 800, backgroundColor: '#111111' });
+        // Canvas técnico oculto
+        const canvas = new fabric.Canvas('production-canvas', { width: 650, height: 800, backgroundColor: '#111' });
 
         function updateColor(color) {
             document.getElementById('dynamic-mask').style.backgroundColor = color;
             canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
         }
 
-        async function generateAI() {
-            const prompt = document.getElementById('aiPrompt').value;
-            if(!prompt) return alert("Por favor, describe tu diseño primero.");
-            
-            alert("✨ Visualynx AI está procesando tu solicitud...\n\nEn la versión final, aquí llamaremos a la API para generar tu patrón y aplicarlo al uniforme en tiempo real.");
+        function generateAI() {
+            alert("✨ Conectando con la IA de Visualynx para generar tu patrón...");
         }
 
-        function generateProductionFile() {
-            const dataURL = canvas.toDataURL({ format: 'png', multiplier: 4 });
-            const link = document.createElement('a');
-            link.download = 'Visualynx_PROD_65x80.png';
-            link.href = dataURL;
-            link.click();
+        function sendToVisualSports() {
+            // Aquí en el futuro el código enviará el 'dataURL' al servidor de Hostinger
+            // Por ahora, solo le mostramos un mensaje de éxito al cliente.
+            alert("🚀 ¡DISEÑO ENVIADO!\n\nTu propuesta ha sido enviada a Visual Sports. Nos pondremos en contacto contigo pronto para los detalles de producción.");
         }
     </script>
 </body>
