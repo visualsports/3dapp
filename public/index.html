@@ -4,191 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualynx — AI Kit Builder by Visual Sports</title>
+    
+    <!-- Librerías Externas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root { 
-            --accent: #00AEEF; /* Visual Sports Blue */
-            --panel: rgba(10, 10, 10, 0.98); 
-        }
-        body { background: #000; color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Side Panel */
-        .sidebar { 
-            width: 380px; background: var(--panel); padding: 30px; 
-            border-right: 1px solid #222; display: flex; flex-direction: column; gap: 20px; 
-            z-index: 100; backdrop-filter: blur(20px); box-sizing: border-box;
-        }
-        
-        .preview-area { 
-            flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            background: #050505 url('assets/fondo.gif') no-repeat center center;
-            background-size: cover; position: relative;
-        }
-
-        /* View Selector */
-        .view-switcher { position: absolute; top: 30px; display: flex; gap: 10px; z-index: 10; }
-        .view-btn { 
-            background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; 
-            padding: 12px 30px; border-radius: 30px; cursor: pointer; font-weight: bold; 
-            transition: 0.3s; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase;
-        }
-        .view-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 20px rgba(0,174,239,0.3); }
-
-        /* Mockup Container */
-        .mockup-container { position: relative; width: 100%; height: 85%; max-width: 700px; display: flex; justify-content: center; align-items: center; }
-        .layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
-
-        #dynamic-mask {
-            mask-size: contain; -webkit-mask-size: contain; 
-            mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
-            mask-position: center; -webkit-mask-position: center;
-            background: #FFFFFF; /* Base for sublimation */
-            z-index: 1; width: 100%; height: 100%;
-        }
-
-        /* UI Styling */
-        .control-box { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); }
-        h1 { font-size: 1.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -1.5px; font-style: italic; }
-        h2 { font-size: 0.65rem; color: #888; text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 2px; }
-        
-        textarea {
-            width: 100%; background: #000; color: #fff; border: 1px solid #333; 
-            border-radius: 12px; padding: 15px; box-sizing: border-box; resize: none;
-            font-family: inherit; font-size: 0.85rem; margin-top: 5px; outline: none;
-        }
-        
-        .btn-ai { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; }
-        .btn-finalize { background: #fff; color: #000; margin-top: auto; padding: 20px; border-radius: 12px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; }
-
-        /* File input styling */
-        .file-label {
-            display: block; width: 100%; padding: 12px; background: #222; border: 1px dashed #444;
-            border-radius: 8px; text-align: center; font-size: 0.8rem; cursor: pointer; color: #aaa;
-        }
-        #logoUpload { display: none; }
-
-        /* Hidden Technical Canvas */
-        #canvas-container { position: absolute; top: -9999px; left: -9999px; visibility: hidden; }
-    </style>
+    
+    <!-- Nuestros archivos separados -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <div class="sidebar">
-        <div>
+    <aside class="sidebar">
+        <header>
             <h1>Visualynx</h1>
-            <p style="font-size: 0.65rem; color: #555; font-weight: 700; letter-spacing: 1px;">AI KIT BUILDER BY VISUAL SPORTS</p>
-        </div>
+            <p class="subtitle">AI KIT BUILDER BY VISUAL SPORTS</p>
+        </header>
 
-        <div class="control-box">
+        <section class="control-box">
             <h2>AI Design Assistant</h2>
             <textarea id="aiPrompt" rows="3" placeholder="Describe your vision: e.g. Abstract tech pattern in navy and silver..."></textarea>
-            <button class="btn-ai" onclick="generateAI()">✨ Generate Design</button>
-        </div>
+            <button class="btn-ai" id="generateBtn">✨ Generate Design</button>
+        </section>
 
-        <div class="control-box">
+        <section class="control-box">
             <h2>Graphics & Logos</h2>
             <label class="file-label" for="logoUpload">Click to upload team logo (PNG)</label>
             <input type="file" id="logoUpload" accept="image/*">
-            <p style="font-size: 0.6rem; color: #555; margin-top: 8px;">Logos will be placed automatically for review.</p>
-        </div>
+        </section>
 
-        <button class="btn-finalize" onclick="sendToProduction()">Request Production</button>
-    </div>
+        <button class="btn-finalize" id="finalizeBtn">Request Production</button>
+    </aside>
 
-    <div class="preview-area">
-        <div class="view-switcher">
-            <button id="btn-front" class="view-btn active" onclick="switchView('front')">FRONT VIEW</button>
-            <button id="btn-back" class="view-btn" onclick="switchView('back')">BACK VIEW</button>
-        </div>
+    <main class="preview-area">
+        <nav class="view-switcher">
+            <button id="btn-front" class="view-btn active">FRONT VIEW</button>
+            <button id="btn-back" class="view-btn">BACK VIEW</button>
+        </nav>
 
         <div class="mockup-container">
-            <!-- Dynamic Pattern/Color Layer -->
             <div id="dynamic-mask" class="layer"></div>
-            
-            <!-- Shadow and Highlight layers with corrected filenames -->
-            <img id="img-shadows" src="assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; z-index: 2; opacity: 0.9;">
-            <img id="img-highlights" src="assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.8; z-index: 3;">
+            <img id="img-shadows" src="assets/frente_sombras.png" class="layer shadow-layer">
+            <img id="img-highlights" src="assets/frente_highlights.png" class="layer highlight-layer">
         </div>
-    </div>
+    </main>
 
-    <!-- This div holds the actual FabricJS canvas far away from view -->
+    <!-- Canvas Oculto -->
     <div id="canvas-container">
         <canvas id="production-canvas"></canvas>
     </div>
 
-    <script>
-        // Assets Configuration - Matched exactly to your GitHub filenames
-        const assets = {
-            front: { 
-                base: 'assets/frente_base.png', 
-                sombras: 'assets/frente_sombras.png', 
-                highlights: 'assets/frente_highlights.png' 
-            },
-            back: { 
-                base: 'assets/espalda_base.png', 
-                sombras: 'assets/espalda_sombras.png', 
-                highlights: 'assets/espalda_highlights.png' 
-            }
-        };
-
-        let currentView = 'front';
-        // Technical canvas for 65x80cm output
-        const canvas = new fabric.Canvas('production-canvas', { 
-            width: 650, 
-            height: 800, 
-            backgroundColor: '#FFFFFF' 
-        });
-
-        function switchView(view) {
-            currentView = view;
-            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + view).classList.add('active');
-            
-            const mask = document.getElementById('dynamic-mask');
-            mask.style.maskImage = `url('${assets[view].base}')`;
-            mask.style.webkitMaskImage = `url('${assets[view].base}')`;
-            
-            document.getElementById('img-shadows').src = assets[view].sombras;
-            document.getElementById('img-highlights').src = assets[view].highlights;
-        }
-
-        // Init
-        switchView('front');
-
-        // Logo Upload Logic
-        document.getElementById('logoUpload').onchange = function(e) {
-            const reader = new FileReader();
-            reader.onload = function(f) {
-                fabric.Image.fromURL(f.target.result, function(img) {
-                    img.scaleToWidth(150);
-                    canvas.add(img);
-                    canvas.centerObject(img);
-                    updatePreviewFromCanvas();
-                });
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        };
-
-        // Syncs the technical canvas with the 3D mockup
-        function updatePreviewFromCanvas() {
-            const dataURL = canvas.toDataURL({ format: 'png' });
-            document.getElementById('dynamic-mask').style.backgroundImage = `url(${dataURL})`;
-            document.getElementById('dynamic-mask').style.backgroundSize = 'contain';
-            document.getElementById('dynamic-mask').style.backgroundRepeat = 'no-repeat';
-            document.getElementById('dynamic-mask').style.backgroundPosition = 'center';
-            document.getElementById('dynamic-mask').style.backgroundColor = 'transparent';
-        }
-
-        function generateAI() {
-            const prompt = document.getElementById('aiPrompt').value;
-            if(!prompt) return alert("Please describe your design idea.");
-            alert("✨ Visualynx AI is generating your unique pattern...");
-        }
-
-        function sendToProduction() {
-            alert("🚀 Request sent to Visual Sports. We will review your specs shortly.");
-        }
-    </script>
+    <!-- Scripts al final para que la web cargue rápido -->
+    <script src="js/editor.js"></script>
+    <script src="js/ui.js"></script>
 </body>
 </html>
