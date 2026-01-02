@@ -2,62 +2,56 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Visualynx — AI Kit Builder by Visual Sports</title>
+    <title>Visualynx — AI Kit Builder</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #FFE135; --dark-bg: #0a0a0a; --panel: rgba(20, 20, 20, 0.95); }
+        :root { --accent: #FFE135; --dark-bg: #050505; --panel: rgba(15, 15, 15, 0.85); }
         body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Panel Lateral */
+        /* Panel Estilo "Cyber-Sport" */
         .sidebar { 
-            width: 340px; background: var(--panel); padding: 25px; 
-            border-right: 1px solid #333; display: flex; flex-direction: column; gap: 20px; 
-            z-index: 100; backdrop-filter: blur(15px); box-sizing: border-box;
+            width: 380px; background: var(--panel); padding: 30px; 
+            border-right: 1px solid #222; display: flex; flex-direction: column; gap: 25px; 
+            z-index: 100; backdrop-filter: blur(20px); box-sizing: border-box;
         }
         
-        /* Área de Visualización con el GIF de fondo */
         .preview-area { 
             flex-grow: 1; display: flex; justify-content: center; align-items: center; 
             background: #000 url('assets/fondo.gif') no-repeat center center;
             background-size: cover; position: relative;
         }
 
-        /* Mockup Dinámico (Ajustado a tus PNGs) */
-        .mockup-container { position: relative; width: 80%; height: 80%; max-width: 600px; display: flex; align-items: center; justify-content: center; }
-        .layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
+        /* Mockup con profundidad 2.5D */
+        .mockup-container { position: relative; width: 85%; height: 85%; max-width: 700px; filter: drop-shadow(0 0 30px rgba(0,0,0,0.5)); }
+        .layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; transition: 0.5s ease; }
 
-        /* Capa de diseño (la silueta que corta el color) */
         #dynamic-mask {
             mask-image: url('assets/frente_base.png'); -webkit-mask-image: url('assets/frente_base.png');
-            mask-size: contain; -webkit-mask-size: contain;
-            mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
-            mask-position: center; -webkit-mask-position: center;
-            background: #00ccff; z-index: 1; width: 100%; height: 100%;
+            mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; mask-position: center;
+            background: #111; z-index: 1; width: 100%; height: 100%;
         }
 
-        .control-box { background: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #333; }
-        h1 { font-size: 1.6rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -1px; }
-        h2 { font-size: 0.75rem; color: #aaa; text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 1px; }
+        .control-box { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        h1 { font-size: 1.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -2px; font-style: italic; }
+        h2 { font-size: 0.7rem; color: #555; text-transform: uppercase; margin: 0 0 15px 0; letter-spacing: 2px; }
         
-        input[type="color"] { width: 100%; height: 40px; border: none; cursor: pointer; background: none; margin-bottom: 5px; }
-        
-        /* CUADRO DE IA PROMPT */
         textarea#aiPrompt {
-            width: 100%; background: #000; color: #fff; border: 1px solid #444; 
-            border-radius: 8px; padding: 12px; box-sizing: border-box; resize: none;
-            font-family: inherit; font-size: 0.9rem; margin-bottom: 10px;
+            width: 100%; background: #000; color: #fff; border: 1px solid #333; 
+            border-radius: 12px; padding: 15px; box-sizing: border-box; resize: none;
+            font-family: inherit; font-size: 0.85rem; margin-bottom: 12px; outline: none;
         }
+        textarea#aiPrompt:focus { border-color: var(--accent); }
         
-        button { 
-            background: var(--accent); color: black; border: none; padding: 14px; 
-            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;
-            text-transform: uppercase; transition: 0.2s; font-size: 0.85rem;
+        .btn-ai { 
+            background: var(--accent); color: black; border: none; padding: 16px; 
+            border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%;
+            text-transform: uppercase; transition: 0.3s; font-size: 0.8rem;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        button:hover { background: #fff; transform: translateY(-2px); }
-        button.secondary { background: #333; color: white; font-size: 0.7rem; }
+        .btn-ai:hover { background: #fff; box-shadow: 0 0 20px rgba(255,225,53,0.3); }
 
-        #canvas-hidden { position: absolute; left: -9999px; }
+        .btn-prod { background: #fff; color: #000; margin-top: auto; padding: 18px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -65,75 +59,56 @@
     <div class="sidebar">
         <div>
             <h1>Visualynx</h1>
-            <p style="font-size: 0.7rem; color: #666; margin-top: 5px;">AI Kit Builder by Visual Sports</p>
+            <p style="font-size: 0.7rem; color: #444; margin-top: 5px;">GEN-AI APPAREL LAB</p>
         </div>
 
-        <!-- 1. IA PROMPT BOX -->
+        <!-- SECCIÓN IA: EL CORAZÓN DEL PROYECTO -->
         <div class="control-box">
-            <h2>3. AI Designer (Prompt)</h2>
-            <textarea id="aiPrompt" rows="3" placeholder="Ej: Camuflaje moderno en tonos cian y gris oscuro con detalles en blanco..."></textarea>
-            <button class="secondary" onclick="alert('IA Generando... (Conectando API)')">Generar Diseño con IA</button>
+            <h2>AI Design Assistant</h2>
+            <textarea id="aiPrompt" rows="4" placeholder="Describe tu visión: 'Patrón geométrico tipo glitch en cian neón sobre fondo carbón mate...'"></textarea>
+            <button class="btn-ai" onclick="generateAI()">
+                <span>✨</span> GENERAR DISEÑO ÚNICO
+            </button>
         </div>
 
-        <!-- 2. COLOR PICKER -->
         <div class="control-box">
-            <h2>2. Color de Base</h2>
-            <input type="color" id="kitColor" value="#00ccff" onchange="updateColor(this.value)">
+            <h2>Configuración Manual</h2>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <input type="color" id="kitColor" value="#111111" onchange="updateColor(this.value)" style="width:50px; height:50px; border:none; background:none; cursor:pointer;">
+                <span style="font-size:0.8rem; color:#888;">Color base del tejido</span>
+            </div>
         </div>
 
-        <!-- 3. LOGO UPLOAD -->
-        <div class="control-box">
-            <h2>3. Tus Logos</h2>
-            <input type="file" id="logoUpload" accept="image/*" style="font-size: 0.7rem; color: #888;">
-        </div>
-
-        <button onclick="generateProductionFile()" style="margin-top: auto; background: #28a745; color: white;">Finalizar y Descargar Plano</button>
+        <button class="btn-prod" onclick="generateProductionFile()">FINALIZAR PARA PRODUCCIÓN</button>
     </div>
 
     <div class="preview-area">
         <div class="mockup-container">
-            <!-- 1. Color dinámico recortado por la base -->
             <div id="dynamic-mask" class="layer"></div>
-            
-            <!-- 2. Capa de Sombras (Modo Multiplicar) -->
             <img src="assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; opacity: 1; z-index: 2;">
-            
-            <!-- 3. Capa de Brillos (Modo Trama/Screen) -->
-            <img src="assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.7; z-index: 3;">
+            <img src="assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.8; z-index: 3;">
         </div>
     </div>
 
-    <!-- El lienzo técnico de 65x80cm que tú recibes -->
-    <div id="canvas-hidden">
-        <canvas id="flatCanvas"></canvas>
-    </div>
-
     <script>
-        const canvas = new fabric.Canvas('flatCanvas', {
-            width: 650, height: 800, backgroundColor: '#00ccff'
-        });
+        const canvas = new fabric.Canvas(null, { width: 650, height: 800, backgroundColor: '#111111' });
 
         function updateColor(color) {
             document.getElementById('dynamic-mask').style.backgroundColor = color;
             canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
         }
 
-        document.getElementById('logoUpload').onchange = function(e) {
-            const reader = new FileReader();
-            reader.onload = function(f) {
-                fabric.Image.fromURL(f.target.result, function(img) {
-                    img.scaleToWidth(150);
-                    canvas.add(img);
-                    canvas.centerObject(img);
-                });
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        };
+        async function generateAI() {
+            const prompt = document.getElementById('aiPrompt').value;
+            if(!prompt) return alert("Por favor, describe tu diseño primero.");
+            
+            alert("✨ Visualynx AI está procesando tu solicitud...\n\nEn la versión final, aquí llamaremos a la API para generar tu patrón y aplicarlo al uniforme en tiempo real.");
+        }
 
         function generateProductionFile() {
             const dataURL = canvas.toDataURL({ format: 'png', multiplier: 4 });
             const link = document.createElement('a');
-            link.download = 'Visualynx_Frente_65x80_VisualSport.png';
+            link.download = 'Visualynx_PROD_65x80.png';
             link.href = dataURL;
             link.click();
         }
