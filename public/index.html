@@ -1,57 +1,62 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualynx — AI Kit Builder by Visual Sports</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #FFE135; --panel: rgba(15, 15, 15, 0.9); }
+        :root { --accent: #FFE135; --panel: rgba(10, 10, 10, 0.95); }
         body { background: #000; color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Panel Lateral Izquierdo */
+        /* Side Panel */
         .sidebar { 
             width: 380px; background: var(--panel); padding: 30px; 
             border-right: 1px solid #222; display: flex; flex-direction: column; gap: 20px; 
             z-index: 100; backdrop-filter: blur(20px); box-sizing: border-box;
         }
         
-        /* Área Principal */
+        /* Main Viewport */
         .preview-area { 
             flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            background: url('/assets/fondo.gif') no-repeat center center;
+            background: #050505 url('assets/fondo.gif') no-repeat center center;
             background-size: cover; position: relative;
         }
 
-        /* Selector de Vista (Frente/Espalda) */
+        /* Front/Back Selector */
         .view-switcher { position: absolute; top: 30px; display: flex; gap: 10px; z-index: 10; }
-        .view-btn { background: rgba(255,255,255,0.1); border: 1px solid #444; color: white; padding: 10px 25px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .view-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
+        .view-btn { background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; padding: 12px 30px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 0.8rem; letter-spacing: 1px; }
+        .view-btn.active { background: var(--accent); color: black; border-color: var(--accent); box-shadow: 0 0 20px rgba(255,225,53,0.2); }
 
-        /* Mockup Contenedor */
-        .mockup-container { position: relative; width: 90%; height: 80%; max-width: 650px; }
+        /* Mockup Container */
+        .mockup-container { position: relative; width: 100%; height: 85%; max-width: 700px; display: flex; justify-content: center; align-items: center; }
         .layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
 
-        /* Máscara de diseño */
+        /* Dynamic Styling Mask */
         #dynamic-mask {
             mask-size: contain; -webkit-mask-size: contain; 
             mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
             mask-position: center; -webkit-mask-position: center;
-            background: #111; z-index: 1; width: 100%; height: 100%;
+            background: #1a1a1a; z-index: 1; width: 100%; height: 100%;
+            transition: background 0.3s ease;
         }
 
-        /* UI Elements */
-        .control-box { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
-        h1 { font-size: 1.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -2px; }
+        /* UI Styling */
+        .control-box { background: rgba(255,255,255,0.02); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); }
+        h1 { font-size: 1.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -1.5px; font-style: italic; }
+        h2 { font-size: 0.65rem; color: #666; text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 2px; }
         
         textarea {
             width: 100%; background: #000; color: #fff; border: 1px solid #333; 
             border-radius: 12px; padding: 15px; box-sizing: border-box; resize: none;
-            font-family: inherit; font-size: 0.9rem; margin-top: 10px; outline: none;
+            font-family: inherit; font-size: 0.9rem; margin-top: 10px; outline: none; transition: 0.3s;
         }
+        textarea:focus { border-color: var(--accent); }
         
-        .btn-ai { background: var(--accent); color: black; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; }
-        .btn-finalize { background: #fff; color: #000; margin-top: auto; padding: 20px; border-radius: 12px; font-weight: 900; border: none; cursor: pointer; }
+        .btn-ai { background: var(--accent); color: black; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; }
+        .btn-finalize { background: #fff; color: #000; margin-top: auto; padding: 20px; border-radius: 12px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-finalize:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
 
         #production-canvas { position: absolute; left: -9999px; }
     </style>
@@ -61,67 +66,79 @@
     <div class="sidebar">
         <div>
             <h1>Visualynx</h1>
-            <p style="font-size: 0.7rem; color: #555;">GEN-AI APPAREL LAB BY VISUAL SPORTS</p>
+            <p style="font-size: 0.65rem; color: #444; font-weight: 700; letter-spacing: 1px;">GEN-AI APPAREL LAB BY VISUAL SPORTS</p>
         </div>
 
         <div class="control-box">
-            <h2 style="font-size: 0.7rem; color: #888; text-transform: uppercase;">AI Design Prompt</h2>
-            <textarea id="aiPrompt" rows="4" placeholder="Ej: Estilo mármol líquido en tonos negro y dorado..."></textarea>
-            <button class="btn-ai" onclick="generateAI()">✨ GENERAR CON IA</button>
+            <h2>AI Design Prompt</h2>
+            <textarea id="aiPrompt" rows="4" placeholder="e.g. Modern liquid marble in obsidian and gold with electric blue accents..."></textarea>
+            <button class="btn-ai" onclick="generateAI()">✨ Generate with AI</button>
         </div>
 
         <div class="control-box">
-            <h2 style="font-size: 0.7rem; color: #888; text-transform: uppercase;">Color Base</h2>
-            <input type="color" id="kitColor" value="#111111" onchange="updateColor(this.value)" style="width:100%; height:40px; cursor:pointer;">
+            <h2>Fabric Base Color</h2>
+            <input type="color" id="kitColor" value="#1a1a1a" onchange="updateColor(this.value)" style="width:100%; height:45px; cursor:pointer; border-radius: 8px;">
         </div>
 
-        <button class="btn-finalize" onclick="sendToProduction()">SOLICITAR ESTE DISEÑO</button>
+        <button class="btn-finalize" onclick="sendToProduction()">Request Production</button>
     </div>
 
     <div class="preview-area">
         <div class="view-switcher">
-            <button id="btn-frente" class="view-btn active" onclick="switchView('frente')">FRENTE</button>
-            <button id="btn-espalda" class="view-btn" onclick="switchView('espalda')">ESPALDA</button>
+            <button id="btn-front" class="view-btn active" onclick="switchView('front')">FRONT VIEW</button>
+            <button id="btn-back" class="view-btn" onclick="switchView('back')">BACK VIEW</button>
         </div>
 
         <div class="mockup-container">
-            <!-- Capa Dinámica (se le aplica la máscara por JS) -->
+            <!-- The Magic Layer: This takes the color/pattern and gets cut by the base shape -->
             <div id="dynamic-mask" class="layer"></div>
             
-            <!-- Sombras y Brillos (ID para cambiarlos por vista) -->
-            <img id="img-sombras" src="/assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; z-index: 2;">
-            <img id="img-highlights" src="/assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.8; z-index: 3;">
+            <!-- Shadows & Highlights -->
+            <img id="img-shadows" src="assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; z-index: 2; opacity: 0.9;">
+            <img id="img-highlights" src="assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.8; z-index: 3;">
         </div>
     </div>
 
+    <!-- Hidden Canvas for Visual Sports Production (65x80cm) -->
     <canvas id="production-canvas"></canvas>
 
     <script>
-        // Configuración inicial
+        // ASSETS CONFIGURATION - All lowercase to match GitHub
         const config = {
-            frente: { base: '/assets/frente_base.png', sombras: '/assets/frente_sombras.png', highlights: '/assets/frente_highlights.png' },
-            espalda: { base: '/assets/espalda_base.png', sombras: '/assets/espalda_sombras.png', highlights: '/assets/espalda_highlights.png' }
+            front: { 
+                base: 'assets/frente_base.png', 
+                sombras: 'assets/frente_sombras.png', 
+                highlights: 'assets/frente_highlights.png' 
+            },
+            back: { 
+                base: 'assets/espalda_base.png', 
+                sombras: 'assets/espalda_sombras.png', 
+                highlights: 'assets/espalda_highlights.png' 
+            }
         };
 
-        let currentView = 'frente';
-        const canvas = new fabric.Canvas('production-canvas', { width: 650, height: 800, backgroundColor: '#111' });
+        let currentView = 'front';
+        // Fabric.js canvas for the 65x80cm print file
+        const canvas = new fabric.Canvas('production-canvas', { width: 650, height: 800, backgroundColor: '#1a1a1a' });
 
         function switchView(view) {
             currentView = view;
             document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + view).classList.add('active');
             
-            // Actualizar imágenes del mockup
             const mask = document.getElementById('dynamic-mask');
+            
+            // Set the silhouette mask
             mask.style.maskImage = `url('${config[view].base}')`;
             mask.style.webkitMaskImage = `url('${config[view].base}')`;
             
-            document.getElementById('img-sombras').src = config[view].sombras;
+            // Update shadow and highlight layers
+            document.getElementById('img-shadows').src = config[view].sombras;
             document.getElementById('img-highlights').src = config[view].highlights;
         }
 
-        // Aplicar máscara inicial al cargar
-        switchView('frente');
+        // Initialize with Front view
+        switchView('front');
 
         function updateColor(color) {
             document.getElementById('dynamic-mask').style.backgroundColor = color;
@@ -130,12 +147,12 @@
 
         function generateAI() {
             const prompt = document.getElementById('aiPrompt').value;
-            if(!prompt) return alert("Escribe una idea para la IA");
-            alert("✨ Visualynx AI está creando un patrón basado en: " + prompt);
+            if(!prompt) return alert("Please describe your design idea first.");
+            alert("✨ Visualynx AI is processing your request: " + prompt);
         }
 
         function sendToProduction() {
-            alert("🚀 ¡Solicitud enviada!\nVisual Sports recibirá tu configuración de 65x80cm.");
+            alert("🚀 Design Request Sent!\n\nVisual Sports has received your 65x80cm technical specs. Our team will contact you shortly.");
         }
     </script>
 </body>
