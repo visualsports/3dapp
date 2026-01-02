@@ -2,48 +2,57 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Visualynx — AI Kit Builder</title>
+    <title>Visualynx — AI Kit Builder by Visual Sports</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #FFE135; --dark-bg: #050505; --panel: rgba(15, 15, 15, 0.9); }
-        body { background: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --accent: #FFE135; --panel: rgba(15, 15, 15, 0.9); }
+        body { background: #000; color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
+        /* Panel Lateral Izquierdo */
         .sidebar { 
-            width: 350px; background: var(--panel); padding: 30px; 
-            border-right: 1px solid #222; display: flex; flex-direction: column; gap: 25px; 
+            width: 380px; background: var(--panel); padding: 30px; 
+            border-right: 1px solid #222; display: flex; flex-direction: column; gap: 20px; 
             z-index: 100; backdrop-filter: blur(20px); box-sizing: border-box;
         }
         
+        /* Área Principal */
         .preview-area { 
-            flex-grow: 1; display: flex; justify-content: center; align-items: center; 
-            background: #000 url('assets/fondo.gif') no-repeat center center;
+            flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            background: url('/assets/fondo.gif') no-repeat center center;
             background-size: cover; position: relative;
         }
 
-        .mockup-container { position: relative; width: 90%; height: 90%; max-width: 600px; }
+        /* Selector de Vista (Frente/Espalda) */
+        .view-switcher { position: absolute; top: 30px; display: flex; gap: 10px; z-index: 10; }
+        .view-btn { background: rgba(255,255,255,0.1); border: 1px solid #444; color: white; padding: 10px 25px; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .view-btn.active { background: var(--accent); color: black; border-color: var(--accent); }
+
+        /* Mockup Contenedor */
+        .mockup-container { position: relative; width: 90%; height: 80%; max-width: 650px; }
         .layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
 
-        /* Máscara corregida con nombres en minúsculas */
+        /* Máscara de diseño */
         #dynamic-mask {
-            mask-image: url('assets/frente_base.png'); -webkit-mask-image: url('assets/frente_base.png');
-            mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; mask-position: center;
+            mask-size: contain; -webkit-mask-size: contain; 
+            mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+            mask-position: center; -webkit-mask-position: center;
             background: #111; z-index: 1; width: 100%; height: 100%;
         }
 
+        /* UI Elements */
         .control-box { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
-        h1 { font-size: 1.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -2px; font-style: italic; }
-        h2 { font-size: 0.7rem; color: #555; text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 2px; }
+        h1 { font-size: 1.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -2px; }
         
         textarea {
             width: 100%; background: #000; color: #fff; border: 1px solid #333; 
-            border-radius: 12px; padding: 15px; box-sizing: border-box; resize: none; font-family: inherit;
+            border-radius: 12px; padding: 15px; box-sizing: border-box; resize: none;
+            font-family: inherit; font-size: 0.9rem; margin-top: 10px; outline: none;
         }
         
-        .btn-ai { background: var(--accent); color: black; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%; text-transform: uppercase; }
-        .btn-finalize { background: #fff; color: #000; margin-top: auto; padding: 18px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; }
+        .btn-ai { background: var(--accent); color: black; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-finalize { background: #fff; color: #000; margin-top: auto; padding: 20px; border-radius: 12px; font-weight: 900; border: none; cursor: pointer; }
 
-        /* IMPORTANTE: El Canvas donde se crea el arte de impresión es invisible para el cliente */
         #production-canvas { position: absolute; left: -9999px; }
     </style>
 </head>
@@ -52,38 +61,67 @@
     <div class="sidebar">
         <div>
             <h1>Visualynx</h1>
-            <p style="font-size: 0.7rem; color: #444; margin-top: 5px;">GEN-AI APPAREL LAB</p>
+            <p style="font-size: 0.7rem; color: #555;">GEN-AI APPAREL LAB BY VISUAL SPORTS</p>
         </div>
 
         <div class="control-box">
-            <h2>AI Design Assistant</h2>
-            <textarea id="aiPrompt" rows="4" placeholder="Describe tu visión..."></textarea>
-            <button class="btn-ai" onclick="generateAI()">✨ GENERAR DISEÑO</button>
+            <h2 style="font-size: 0.7rem; color: #888; text-transform: uppercase;">AI Design Prompt</h2>
+            <textarea id="aiPrompt" rows="4" placeholder="Ej: Estilo mármol líquido en tonos negro y dorado..."></textarea>
+            <button class="btn-ai" onclick="generateAI()">✨ GENERAR CON IA</button>
         </div>
 
         <div class="control-box">
-            <h2>Configuración Manual</h2>
-            <input type="color" id="kitColor" value="#111111" onchange="updateColor(this.value)" style="width:100%; height:40px; border:none; background:none; cursor:pointer;">
+            <h2 style="font-size: 0.7rem; color: #888; text-transform: uppercase;">Color Base</h2>
+            <input type="color" id="kitColor" value="#111111" onchange="updateColor(this.value)" style="width:100%; height:40px; cursor:pointer;">
         </div>
 
-        <!-- Botón que NO descarga, solo envía -->
-        <button class="btn-finalize" onclick="sendToVisualSports()">SOLICITAR ESTE DISEÑO</button>
+        <button class="btn-finalize" onclick="sendToProduction()">SOLICITAR ESTE DISEÑO</button>
     </div>
 
     <div class="preview-area">
+        <div class="view-switcher">
+            <button id="btn-frente" class="view-btn active" onclick="switchView('frente')">FRENTE</button>
+            <button id="btn-espalda" class="view-btn" onclick="switchView('espalda')">ESPALDA</button>
+        </div>
+
         <div class="mockup-container">
+            <!-- Capa Dinámica (se le aplica la máscara por JS) -->
             <div id="dynamic-mask" class="layer"></div>
-            <!-- Nombres corregidos a minúsculas para GitHub -->
-            <img src="assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; z-index: 2;">
-            <img src="assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.8; z-index: 3;">
+            
+            <!-- Sombras y Brillos (ID para cambiarlos por vista) -->
+            <img id="img-sombras" src="/assets/frente_sombras.png" class="layer" style="mix-blend-mode: multiply; z-index: 2;">
+            <img id="img-highlights" src="/assets/frente_highlights.png" class="layer" style="mix-blend-mode: screen; opacity: 0.8; z-index: 3;">
         </div>
     </div>
 
     <canvas id="production-canvas"></canvas>
 
     <script>
-        // Canvas técnico oculto
+        // Configuración inicial
+        const config = {
+            frente: { base: '/assets/frente_base.png', sombras: '/assets/frente_sombras.png', highlights: '/assets/frente_highlights.png' },
+            espalda: { base: '/assets/espalda_base.png', sombras: '/assets/espalda_sombras.png', highlights: '/assets/espalda_highlights.png' }
+        };
+
+        let currentView = 'frente';
         const canvas = new fabric.Canvas('production-canvas', { width: 650, height: 800, backgroundColor: '#111' });
+
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + view).classList.add('active');
+            
+            // Actualizar imágenes del mockup
+            const mask = document.getElementById('dynamic-mask');
+            mask.style.maskImage = `url('${config[view].base}')`;
+            mask.style.webkitMaskImage = `url('${config[view].base}')`;
+            
+            document.getElementById('img-sombras').src = config[view].sombras;
+            document.getElementById('img-highlights').src = config[view].highlights;
+        }
+
+        // Aplicar máscara inicial al cargar
+        switchView('frente');
 
         function updateColor(color) {
             document.getElementById('dynamic-mask').style.backgroundColor = color;
@@ -91,13 +129,13 @@
         }
 
         function generateAI() {
-            alert("✨ Conectando con la IA de Visualynx para generar tu patrón...");
+            const prompt = document.getElementById('aiPrompt').value;
+            if(!prompt) return alert("Escribe una idea para la IA");
+            alert("✨ Visualynx AI está creando un patrón basado en: " + prompt);
         }
 
-        function sendToVisualSports() {
-            // Aquí en el futuro el código enviará el 'dataURL' al servidor de Hostinger
-            // Por ahora, solo le mostramos un mensaje de éxito al cliente.
-            alert("🚀 ¡DISEÑO ENVIADO!\n\nTu propuesta ha sido enviada a Visual Sports. Nos pondremos en contacto contigo pronto para los detalles de producción.");
+        function sendToProduction() {
+            alert("🚀 ¡Solicitud enviada!\nVisual Sports recibirá tu configuración de 65x80cm.");
         }
     </script>
 </body>
