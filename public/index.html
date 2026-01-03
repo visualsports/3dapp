@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualynx — AI Kit Builder by Visual Sports</title>
+    
+    <!-- Librerías -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -18,7 +22,7 @@
 
         <section class="control-box">
             <h2>AI Design Assistant</h2>
-            <textarea id="aiPrompt" rows="3" placeholder="Describe your vision: e.g. Abstract tech pattern in navy and silver..."></textarea>
+            <textarea id="aiPrompt" rows="3" placeholder="Describe your vision: e.g. Modern liquid marble in obsidian and gold..."></textarea>
             <button class="btn-ai" id="generateBtn">✨ Generate Design</button>
         </section>
 
@@ -30,7 +34,6 @@
             <input type="file" id="logoUpload" accept="image/*" style="display:none;">
         </section>
 
-        <!-- Botón limpio sin alertas manuales -->
         <button class="btn-finalize" id="finalizeBtn">Request Production</button>
     </aside>
 
@@ -47,7 +50,7 @@
         </div>
     </main>
 
-    <!-- Modal de Éxito: Asegúrate de que el CSS lo oculte -->
+    <!-- VENTANA FLOTANTE DE ÉXITO (MODAL) -->
     <div id="successModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-icon">🚀</div>
@@ -55,14 +58,19 @@
             <p>Your unique Visualynx design has been sent to our production team. We will contact you shortly to finalize the details.</p>
             <div class="modal-actions">
                 <button class="btn-ai" id="closeModalBtn">Back to Editor</button>
+                <p style="font-size: 0.7rem; color: #555; margin-top: 15px;">
+                    Need immediate help? <a href="#" style="color: var(--accent); text-decoration: none;">Contact us on WhatsApp</a>
+                </p>
             </div>
         </div>
     </div>
 
+    <!-- Canvas Oculto para Producción -->
     <div id="canvas-container" style="position: absolute; left: -9999px;">
         <canvas id="production-canvas"></canvas>
     </div>
 
+    <!-- Scripts -->
     <script src="js/editor.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/ai.js"></script>
