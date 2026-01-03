@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualynx — AI Kit Builder</title>
+    <title>Visualynx — AI Kit Builder by Visual Sports</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
     <aside class="sidebar">
         <header>
             <h1>Visualynx</h1>
@@ -17,16 +18,19 @@
 
         <section class="control-box">
             <h2>AI Design Assistant</h2>
-            <textarea id="aiPrompt" rows="3" placeholder="Describe your vision..."></textarea>
+            <textarea id="aiPrompt" rows="3" placeholder="Describe your vision: e.g. Abstract tech pattern in navy and silver..."></textarea>
             <button class="btn-ai" id="generateBtn">✨ Generate Design</button>
         </section>
 
         <section class="control-box">
             <h2>Graphics & Logos</h2>
-            <label class="file-label" for="logoUpload">Drop or click to upload<br><b>Team Logo (PNG)</b></label>
+            <label class="file-label" for="logoUpload">
+                <span>Drop or click to upload<br><b>Team Logo (PNG)</b></span>
+            </label>
             <input type="file" id="logoUpload" accept="image/*" style="display:none;">
         </section>
 
+        <!-- Botón limpio sin alertas manuales -->
         <button class="btn-finalize" id="finalizeBtn">Request Production</button>
     </aside>
 
@@ -35,6 +39,7 @@
             <button id="btn-front" class="view-btn active">FRONT VIEW</button>
             <button id="btn-back" class="view-btn">BACK VIEW</button>
         </nav>
+
         <div class="mockup-container">
             <div id="dynamic-mask" class="layer"></div>
             <img id="img-shadows" src="assets/frente_sombras.png" class="layer shadow-layer">
@@ -42,16 +47,21 @@
         </div>
     </main>
 
+    <!-- Modal de Éxito: Asegúrate de que el CSS lo oculte -->
     <div id="successModal" class="modal-overlay">
         <div class="modal-content">
-            <div style="font-size:3rem;">🚀</div>
-            <h2 style="color:var(--accent);">Design Received!</h2>
-            <p style="color:#ccc;">Our team will contact you shortly to finalize production.</p>
-            <button class="btn-ai" onclick="document.getElementById('successModal').style.display='none'">Back to Editor</button>
+            <div class="modal-icon">🚀</div>
+            <h2>Design Received!</h2>
+            <p>Your unique Visualynx design has been sent to our production team. We will contact you shortly to finalize the details.</p>
+            <div class="modal-actions">
+                <button class="btn-ai" id="closeModalBtn">Back to Editor</button>
+            </div>
         </div>
     </div>
 
-    <div style="position:absolute; left:-9999px;"><canvas id="production-canvas"></canvas></div>
+    <div id="canvas-container" style="position: absolute; left: -9999px;">
+        <canvas id="production-canvas"></canvas>
+    </div>
 
     <script src="js/editor.js"></script>
     <script src="js/ui.js"></script>
