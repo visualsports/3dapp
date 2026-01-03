@@ -3,11 +3,9 @@ const assets = {
     back: { base: 'assets/espalda_base.png', sombras: 'assets/espalda_sombras.png', highlights: 'assets/espalda_highlights.png' }
 };
 
-// Función para cambiar de vista
 function switchView(view) {
     document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('btn-' + view);
-    if(btn) btn.classList.add('active');
+    document.getElementById('btn-' + view).classList.add('active');
     
     const mask = document.getElementById('dynamic-mask');
     mask.style.maskImage = `url('${assets[view].base}')`;
@@ -17,23 +15,24 @@ function switchView(view) {
     document.getElementById('img-highlights').src = assets[view].highlights;
 }
 
-// Botones de vista
+// Eventos de Vistas
 document.getElementById('btn-front').onclick = () => switchView('front');
 document.getElementById('btn-back').onclick = () => switchView('back');
 
-// Lógica del MODAL
-const successModal = document.getElementById('successModal');
+// Lógica del Modal
+const modal = document.getElementById('successModal');
 const finalizeBtn = document.getElementById('finalizeBtn');
 const closeModalBtn = document.getElementById('closeModalBtn');
 
 finalizeBtn.onclick = () => {
-    // Mostramos el modal añadiendo la clase 'show'
-    successModal.classList.add('show');
+    modal.classList.add('active');
 };
 
-closeModalBtn.onclick = () => {
-    successModal.classList.remove('show');
-};
+function closeModal() {
+    modal.classList.remove('active');
+}
 
-// Iniciar
+closeModalBtn.onclick = closeModal;
+
+// Iniciar en Frente
 switchView('front');
