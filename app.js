@@ -15,17 +15,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.post('/api/generate', async (req, res) => {
     try {
         const { prompt } = req.body;
-        if (!process.env.GEMINI_API_KEY) {
-            throw new Error("API Key no configurada en el servidor");
-        }
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const fullPrompt = `Act as a creative sports jersey designer. User idea: ${prompt}. Return a brief professional design suggestion.`;
-        const result = await model.generateContent(fullPrompt);
+
+        const systemPrompt = `
+            Act as a professional sportswear designer for Visualynx. 
+            User idea: "${prompt}"
+            Based on this, choose:
+            1. A main HEX color.
+            2. An accent HEX color.
+            3. A one-sentence professional design description in English.
+            Return ONLY a JSON object like this: 
+            {"primary": "#000000", "accent": "#FFD700", "description": "Elegant black marble with gold veins."}
+        `;
+
+        const result = await model.generateContent(systemPrompt);
         const response = await result.response;
-        res.json({ text: response.text() });
+        // Limpiamos la respuesta para asegurarnos de que sea un JSON válido
+        const cleanJson = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
+        res.json(JSON.parse(cleanJson));
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
 });
 
 app.get('*', (req, res) => {
