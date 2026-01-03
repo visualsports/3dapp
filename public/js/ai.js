@@ -17,19 +17,19 @@ async function generateAI() {
 
         const data = await response.json();
         
-        // APLICAR CAMBIOS VISUALES
-        // 1. Cambiamos el color en el maniquí
-        document.getElementById('dynamic-mask').style.backgroundColor = data.primary;
-        
-        // 2. Actualizamos el lienzo de producción (el de 65x80cm)
-        canvas.setBackgroundColor(data.primary, canvas.renderAll.bind(canvas));
+        if (data.error) {
+            // SI HAY UN ERROR, LO MOSTRARÁ AQUÍ
+            alert("SERVER ERROR: " + data.error);
+            return;
+        }
 
-        // 3. Mostramos la descripción de la IA
-        alert("Visualynx AI Suggestion: " + data.description);
+        document.getElementById('dynamic-mask').style.backgroundColor = data.primary;
+        canvas.setBackgroundColor(data.primary, canvas.renderAll.bind(canvas));
+        alert("AI Suggestion: " + data.description);
 
     } catch (error) {
-        console.error("AI Error:", error);
-        alert("The AI is processing a lot of kits. Try again in a moment.");
+        // ERROR DE CONEXIÓN O RED
+        alert("CONNECTION ERROR: " + error.message);
     } finally {
         generateBtn.innerText = "✨ Generate Design";
         generateBtn.disabled = false;
