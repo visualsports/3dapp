@@ -14,28 +14,29 @@ app.post('/api/generate', async (req, res) => {
     try {
         const { prompt } = req.body;
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            generationConfig: { responseMimeType: "application/json" } // Obligamos a que responda en JSON puro
+            model: "gemini-1.5-flash"
         });
 
-        const systemPrompt = `
-            You are a professional sportswear designer. 
-            User want: "${prompt}". 
-            Return a JSON object with these exact keys:
-            "primary": (a hex color code),
-            "description": (a 10-word creative summary in English)
-        `;
+        // Prompt ultra-estricto
+        const systemPrompt = `Return ONLY a JSON object. No markdown, no extra text.
+        Structure: {"primary": "#HEXCOLOR", "description": "Short design summary"}.
+        User request: "${prompt}"`;
 
         const result = await model.generateContent(systemPrompt);
         const response = await result.response;
-        const text = response.text();
+        let text = response.text();
         
-        // Enviamos la respuesta limpia al navegador
-        res.json(JSON.parse(text));
+        // LIMPIEZA DE EMERGENCIA: Quitamos posibles bloques de código markdown
+        text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+        
+        console.log("Raw AI Text:", text); // Para ver en los logs de Hostinger
+
+        const jsonResponse = JSON.parse(text);
+        res.json(jsonResponse);
 
     } catch (error) {
         console.error("AI Error:", error);
-        res.status(500).json({ error: "IA Error", message: error.message });
+        res.status(500).json({ error: "Format error", message: error.message });
     }
 });
 
@@ -44,5 +45,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
-    console.log('Visualynx Server Active');
+    console.log('Visualynx Server Protected');
 });
