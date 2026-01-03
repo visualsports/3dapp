@@ -5,26 +5,21 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Configurar IA con la clave segura de Hostinger
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Configuración de IA (usando la variable de entorno de Hostinger)
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// RUTA PARA LA IA
+// Ruta para procesar la IA
 app.post('/api/generate', async (req, res) => {
     try {
         const { prompt } = req.body;
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error("API Key no configurada en el servidor");
+        }
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-        // Le damos instrucciones precisas a Gemini para que actúe como diseñador textil
-        const fullPrompt = `You are an expert sports apparel designer for Visual Sports. 
-        The user wants a design based on: "${prompt}". 
-        Return a JSON with: 
-        1. primaryColor (hex), 
-        2. accentColor (hex), 
-        3. patternDescription (a short creative text).`;
-
+        const fullPrompt = `Act as a creative sports jersey designer. User idea: ${prompt}. Return a brief professional design suggestion.`;
         const result = await model.generateContent(fullPrompt);
         const response = await result.response;
         res.json({ text: response.text() });
@@ -38,5 +33,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
-    console.log('Visualynx AI Engine Ready');
+    console.log('Visualynx Server Active on port ' + port);
 });
