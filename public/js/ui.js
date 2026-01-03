@@ -5,7 +5,7 @@ const assets = {
 
 function switchView(view) {
     document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-' + view).classList.add('active');
+    if(document.getElementById('btn-' + view)) document.getElementById('btn-' + view).classList.add('active');
     
     const mask = document.getElementById('dynamic-mask');
     mask.style.maskImage = `url('${assets[view].base}')`;
@@ -15,24 +15,12 @@ function switchView(view) {
     document.getElementById('img-highlights').src = assets[view].highlights;
 }
 
-// Eventos de Vistas
 document.getElementById('btn-front').onclick = () => switchView('front');
 document.getElementById('btn-back').onclick = () => switchView('back');
 
-// Lógica del Modal
+// Modal Logic
 const modal = document.getElementById('successModal');
-const finalizeBtn = document.getElementById('finalizeBtn');
-const closeModalBtn = document.getElementById('closeModalBtn');
+document.getElementById('finalizeBtn').onclick = () => modal.style.display = 'flex';
+document.getElementById('closeModalBtn').onclick = () => modal.style.display = 'none';
 
-finalizeBtn.onclick = () => {
-    modal.classList.add('active');
-};
-
-function closeModal() {
-    modal.classList.remove('active');
-}
-
-closeModalBtn.onclick = closeModal;
-
-// Iniciar en Frente
 switchView('front');
