@@ -27,7 +27,13 @@ document.getElementById('generateBtn').onclick = () => {
 };
 
 document.getElementById('finalizeBtn').onclick = () => {
-    alert("🚀 Your request for a 65x80cm layout has been sent to Visual Sports.");
+    // Aquí es donde en el futuro llamaremos a la función que guarda en la base de datos
+    document.getElementById('successModal').style.display = 'flex';
+};
+
+function closeModal() {
+    document.getElementById('successModal').style.display = 'none';
+}
 };
 
 // Iniciar con vista frontal
