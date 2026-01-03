@@ -1,17 +1,7 @@
 {
-  "name": "visual-sport-3d",
+  "name": "visualynx-app",
   "version": "1.0.0",
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2"
-  }
-}
-{
-  "name": "visual-sport-3d",
-  "version": "1.0.0",
+  "description": "Visual Sports AI Kit Builder",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
@@ -19,5 +9,8 @@
   "dependencies": {
     "express": "^4.18.2",
     "@google/generative-ai": "^0.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
