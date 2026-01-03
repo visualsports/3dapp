@@ -1,12 +1,11 @@
 async function generateAI() {
     const promptInput = document.getElementById('aiPrompt');
     const generateBtn = document.getElementById('generateBtn');
-    const mask = document.getElementById('dynamic-mask');
     const prompt = promptInput.value;
 
-    if (!prompt) return alert("Please describe your vision first.");
+    if (!prompt) return alert("Please describe your vision.");
 
-    generateBtn.innerText = "✨ Designing...";
+    generateBtn.innerText = "✨ Connecting...";
     generateBtn.disabled = true;
 
     try {
@@ -16,29 +15,23 @@ async function generateAI() {
             body: JSON.stringify({ prompt: prompt })
         });
 
-        if (!response.ok) throw new Error("Server Error");
-
         const data = await response.json();
-        console.log("AI Applied:", data);
 
-        if (data.primary) {
-            // Aplicar color al Mockup visual
-            mask.style.backgroundColor = data.primary;
-            mask.style.backgroundImage = 'none'; // Limpiamos si había un logo previo
-            
-            // Aplicar al Canvas de impresión (65x80)
-            if (canvas) {
+        if (response.ok && data.primary) {
+            // ÉXITO: Aplicamos color
+            document.getElementById('dynamic-mask').style.backgroundColor = data.primary;
+            if (typeof canvas !== 'undefined') {
                 canvas.setBackgroundColor(data.primary, canvas.renderAll.bind(canvas));
             }
-            
-            alert("✨ Visualynx Suggestion:\n" + (data.description || "Design applied successfully."));
+            alert("✨ Visualynx Applied: " + data.description);
         } else {
-            alert("The AI had trouble deciding the colors. Please try with: 'Neon Green' or 'Deep Purple'.");
+            // ERROR DEL SERVIDOR
+            console.error("Server Error Data:", data);
+            alert("❌ AI ERROR: " + (data.details || data.error || "Unknown Error"));
         }
 
     } catch (error) {
-        console.error("Fetch Error:", error);
-        alert("The server is busy. Please try again in 5 seconds.");
+        alert("❌ CONNECTION ERROR: Check your internet or Hostinger status.");
     } finally {
         generateBtn.innerText = "✨ Generate Design";
         generateBtn.disabled = false;
