@@ -5,36 +5,37 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const port = process.env.PORT || 3000;
 
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/generate', async (req, res) => {
-    // 1. Verificar si la clave existe en el servidor
-    const key = process.env.GEMINI_API_KEY;
-    
-    if (!key) {
-        return res.status(500).json({ error: "La clave GEMINI_API_KEY no está en Hostinger" });
-    }
-
     try {
         const { prompt } = req.body;
-        const genAI = new GoogleGenerativeAI(key);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+            generationConfig: { responseMimeType: "application/json" } // Obligamos a que responda en JSON puro
+        });
 
-        // Un prompt ultra simple para probar
-        const result = await model.generateContent("Respond with only the word: OK");
+        const systemPrompt = `
+            You are a professional sportswear designer. 
+            User want: "${prompt}". 
+            Return a JSON object with these exact keys:
+            "primary": (a hex color code),
+            "description": (a 10-word creative summary in English)
+        `;
+
+        const result = await model.generateContent(systemPrompt);
         const response = await result.response;
         const text = response.text();
         
-        res.json({ debug: "Conexión con Google Exitosa", ai_says: text });
+        // Enviamos la respuesta limpia al navegador
+        res.json(JSON.parse(text));
 
     } catch (error) {
-        // Esto nos dirá el error real en la pantalla por ahora
-        res.status(500).json({ 
-            error: "Error Real de Google", 
-            message: error.message,
-            stack: error.stack 
-        });
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "IA Error", message: error.message });
     }
 });
 
@@ -43,5 +44,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(port, '0.0.0.0', () => {
-    console.log('Server debug mode ready');
+    console.log('Visualynx Server Active');
 });
