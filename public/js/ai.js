@@ -3,10 +3,7 @@ async function generateAI() {
     const generateBtn = document.getElementById('generateBtn');
     const prompt = promptInput.value;
 
-    if (!prompt) {
-        alert("Please describe your vision first.");
-        return;
-    }
+    if (!prompt) return alert("Please describe your vision first.");
 
     generateBtn.innerText = "✨ Designing...";
     generateBtn.disabled = true;
@@ -20,13 +17,19 @@ async function generateAI() {
 
         const data = await response.json();
         
-        // Esta es la sugerencia que te da la IA
-        console.log("AI Suggestion:", data.text);
-        alert("Visualynx AI Suggestion received. Next step: automatic pattern generation!");
+        // APLICAR CAMBIOS VISUALES
+        // 1. Cambiamos el color en el maniquí
+        document.getElementById('dynamic-mask').style.backgroundColor = data.primary;
+        
+        // 2. Actualizamos el lienzo de producción (el de 65x80cm)
+        canvas.setBackgroundColor(data.primary, canvas.renderAll.bind(canvas));
+
+        // 3. Mostramos la descripción de la IA
+        alert("Visualynx AI Suggestion: " + data.description);
 
     } catch (error) {
         console.error("AI Error:", error);
-        alert("Connection lost with Visualynx AI. Check your API Key.");
+        alert("The AI is processing a lot of kits. Try again in a moment.");
     } finally {
         generateBtn.innerText = "✨ Generate Design";
         generateBtn.disabled = false;
