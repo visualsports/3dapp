@@ -1,38 +1,57 @@
 :root { 
-    --accent: #00AEEF; /* Visual Sports Blue */
-    --panel: rgba(10, 10, 10, 0.98); 
+    --accent: #00AEEF; 
+    --panel-bg: rgba(10, 10, 10, 0.95); 
 }
 
 body { 
     background: #000; color: white; font-family: 'Inter', sans-serif; 
-    margin: 0; display: flex; height: 100vh; overflow: hidden; 
+    margin: 0; display: flex; height: 100vh; width: 100vw; overflow: hidden; 
 }
 
-/* Panel Lateral */
+/* RESPONSIVE LAYOUT ENGINE */
 .sidebar { 
-    width: 360px; min-width: 360px; background: var(--panel); padding: 30px; 
+    width: 380px; min-width: 380px; height: 100%;
+    background: var(--panel-bg); padding: 30px; 
     border-right: 1px solid #222; display: flex; flex-direction: column; gap: 20px; 
     z-index: 100; backdrop-filter: blur(20px); box-sizing: border-box;
 }
 
-/* Área Principal con Fondo Responsivo */
 .preview-area { 
-    flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; 
-    /* La ruta ahora tiene ../ para subir un nivel y encontrar assets */
+    flex-grow: 1; position: relative;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; 
     background: #050505 url('../assets/fondo.gif') no-repeat center center;
-    background-size: cover; 
-    position: relative;
-    width: 100%;
+    background-size: cover; width: 100%; height: 100%;
 }
 
+/* LOGO BOX FIX */
+.file-label {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; min-height: 60px; padding: 12px; 
+    background: rgba(255,255,255,0.05); border: 1px dashed #444;
+    border-radius: 12px; text-align: center; font-size: 0.75rem; 
+    cursor: pointer; color: #aaa; box-sizing: border-box;
+    line-height: 1.4; transition: 0.3s;
+}
+.file-label:hover { border-color: var(--accent); color: white; background: rgba(0,174,239,0.1); }
+
+/* MOCKUP SCALING */
+.mockup-container { 
+    position: relative; width: 90%; height: 80%; 
+    max-width: 600px; display: flex; justify-content: center; align-items: center; 
+}
+.layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
+
+#dynamic-mask {
+    mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat;
+    mask-position: center; background: #FFFFFF; z-index: 1; width: 100%; height: 100%;
+}
+.shadow-layer { mix-blend-mode: multiply; z-index: 2; opacity: 1; }
+.highlight-layer { mix-blend-mode: screen; opacity: 0.7; z-index: 3; }
+
+/* UI ELEMENTS */
 h1 { font-size: 1.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: -1.5px; font-style: italic; }
-.subtitle { font-size: 0.65rem; color: #555; font-weight: 700; letter-spacing: 1px; }
-
-.control-box { 
-    background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; 
-    border: 1px solid rgba(255,255,255,0.08); 
-}
-
+.subtitle { font-size: 0.65rem; color: #555; font-weight: 700; letter-spacing: 1px; margin-top: 4px; }
+.control-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); }
 h2 { font-size: 0.65rem; color: #888; text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 2px; }
 
 textarea {
@@ -41,57 +60,26 @@ textarea {
     font-family: inherit; font-size: 0.85rem; outline: none;
 }
 
-.btn-ai { 
-    background: var(--accent); color: white; border: none; padding: 16px; 
-    border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%; 
-    margin-top: 10px; text-transform: uppercase; 
-}
+.btn-ai { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; }
+.btn-finalize { background: #fff; color: #000; margin-top: auto; padding: 20px; border-radius: 12px; font-weight: 900; border: none; cursor: pointer; text-transform: uppercase; }
 
-.btn-finalize { 
-    background: #fff; color: #000; margin-top: auto; padding: 20px; 
-    border-radius: 12px; font-weight: 900; border: none; cursor: pointer; 
-    text-transform: uppercase; 
-}
-
-/* Selector de Vistas */
 .view-switcher { position: absolute; top: 30px; display: flex; gap: 10px; z-index: 10; }
-.view-btn { 
-    background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; 
-    padding: 12px 30px; border-radius: 30px; cursor: pointer; font-size: 0.75rem; 
-}
-.view-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.view-btn { background: rgba(0,0,0,0.6); border: 1px solid #333; color: white; padding: 10px 25px; border-radius: 30px; cursor: pointer; font-size: 0.7rem; font-weight: 700; backdrop-filter: blur(5px); }
+.view-btn.active { background: var(--accent); border-color: var(--accent); }
 
-/* Mockup Container */
-.mockup-container { position: relative; width: 100%; height: 80%; max-width: 700px; display: flex; justify-content: center; align-items: center; }
-.layer { position: absolute; width: 100%; height: 100%; pointer-events: none; object-fit: contain; }
-
-#dynamic-mask {
-    mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat;
-    mask-position: center; background: #FFFFFF; z-index: 1; width: 100%; height: 100%;
-}
-
-.shadow-layer { mix-blend-mode: multiply; z-index: 2; opacity: 0.9; }
-.highlight-layer { mix-blend-mode: screen; opacity: 0.8; z-index: 3; }
-
-/* FIX: Caja de Logos con Texto Ajustado */
-.file-label {
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    width: 100%; 
-    min-height: 50px;
-    padding: 10px 15px; 
-    background: #222; 
-    border: 1px dashed #444;
-    border-radius: 8px; 
-    text-align: center; 
-    font-size: 0.8rem; 
-    cursor: pointer; 
-    color: #aaa;
-    box-sizing: border-box;
-    line-height: 1.2;
-    overflow: hidden;
+/* MOBILE RESPONSIVE ADAPTATION */
+@media (max-width: 1024px) {
+    body { flex-direction: column; overflow-y: auto; }
+    .sidebar { 
+        width: 100%; height: auto; min-width: 100%; 
+        border-right: none; border-top: 1px solid #222; 
+        order: 2; /* Menu moves to bottom */
+    }
+    .preview-area { 
+        height: 60vh; min-height: 450px; order: 1; 
+    }
+    .mockup-container { height: 90%; }
 }
 
 #logoUpload { display: none; }
-#canvas-container { position: absolute; top: -9999px; left: -9999px; }
+#canvas-container { position: absolute; top: -9999px; left: -9999px; visibility: hidden; }
