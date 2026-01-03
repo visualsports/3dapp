@@ -8,9 +8,8 @@ async function generateAI() {
         return;
     }
 
-    // Estética de carga
     generateBtn.innerText = "✨ Designing...";
-    generateBtn.style.opacity = "0.5";
+    generateBtn.disabled = true;
 
     try {
         const response = await fetch('/api/generate', {
@@ -21,18 +20,17 @@ async function generateAI() {
 
         const data = await response.json();
         
-        // Por ahora, la IA nos devolverá consejos de diseño.
-        // En el siguiente paso, haremos que genere la imagen real.
-        alert("Visualynx AI Suggestion:\n" + data.text);
+        // Esta es la sugerencia que te da la IA
+        console.log("AI Suggestion:", data.text);
+        alert("Visualynx AI Suggestion received. Next step: automatic pattern generation!");
 
     } catch (error) {
         console.error("AI Error:", error);
-        alert("The AI is taking a break. Please try again.");
+        alert("Connection lost with Visualynx AI. Check your API Key.");
     } finally {
         generateBtn.innerText = "✨ Generate Design";
-        generateBtn.style.opacity = "1";
+        generateBtn.disabled = false;
     }
 }
 
-// Conectar el botón del UI con esta función
 document.getElementById('generateBtn').onclick = generateAI;
